@@ -1,6 +1,4 @@
 from enum import Enum, auto
-
-from numpy import info
 from engine import Engine
 
 class State(Enum):
@@ -64,6 +62,7 @@ class WarkopFSM:
         
         # STATE LOGIC: ORDERING
         if self.state == State.IDLE:
+            self.state = State.ORDERING
             self.response = "Halo! Selamat datang di Warkop! Mau pesan apa? Ketik 'menu' untuk melihat daftar menu."
 
         elif self.state == State.ORDERING:
@@ -78,7 +77,7 @@ class WarkopFSM:
 
             # FITUR: Kurangi/Batalkan item tertentu
             elif intent == "REDUCE_ITEM":
-                items_to_remove = self.engine.parse_orders(user_input)
+                items_to_remove = self.engine.parse_order(user_input)
                 if items_to_remove:
                     results = []
                     for itm in items_to_remove:
@@ -98,11 +97,11 @@ class WarkopFSM:
                     
             else:
                 # Logika Penambahan Pesanan
-                new_orders = self.engine.parse_orders(user_input)
+                new_orders = self.engine.parse_order(user_input)
                 if new_orders:
                     for order in new_orders:
                         # Cek jika item sudah ada, tambah qty saja.
-                        existing = next((i for i in self.cart if i['item'] == order['item']["item"]), None)
+                        existing = next((i for i in self.cart if i['item'] == order['item']), None)
                         if existing:
                             existing['qty'] += order['qty']
                         else:
@@ -114,17 +113,18 @@ class WarkopFSM:
                 else:
                     self.response = "⚠️ Gagal mendeteksi pesanan. Pastikan formatnya benar (contoh: '**pesan 2 kopi dan 1 teh** atau **hapus 1 kopi**')."
 
-         #STATE LOGIC: CONFIRMATION
+        #STATE LOGIC: CONFIRMATION
         elif self.state == State.CONFIRMATION:
             intent = self.engine.detected_intent(user_input)
             if intent == "YES":
                 self.state = State.PAYMENT
                 self.step()  # Langsung proses pembayaran
-            elif intent == "NO":
+            elif intent == "NO" or intent == "CANCEL_ALL":
+                self.cart = []
                 self.state = State.ORDERING
                 self.response = "Pembayaran dibatalkan. Mau pesan yang lain?"
             else:
-                self.response = "⚠️ Mohon konfirmasi dengan mengetik 'Ya' atau 'Tidak'."
+                self.response = "⚠️ Mohon konfirmasi dengan mengetik 'Ya' untuk bayar atau 'Tidak' untuk membatalkan semua."
 
         # STATE LOGIC: PAYMENT
         elif self.state == State.PAYMENT:

@@ -8,11 +8,11 @@ st.markdown("""
     .stMetric {
         background-color: #f0f2f6;
         padding: 15px;
-        border-radius: 10px;  
+        border-radius: 10px;
         border: 1px solid #e0e0e0;
     }
     .stChatMessage {
-            padding: 10px;
+        padding: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
