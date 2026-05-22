@@ -86,7 +86,7 @@ with tab2:
     st.markdown("Minuman terbaik diracik dengan *logika* dan *cinta*.")
     
     # Ambil data menu dari bot
-    menu_items = st.session_state.bot.nlp.menu_data  # sesuaikan path jika berbeda
+    menu_items = st.session_state.bot.engine.menu_data  # sesuaikan path jika berbeda
     
     cols = st.columns(2)
     
